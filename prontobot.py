@@ -4,7 +4,7 @@ import re
 import pprint
 import calendar
 from slackclient import SlackClient
-from datetime import date
+from datetime import date, datetime
 
 pp = pprint.PrettyPrinter(indent=4)
 slack_client = SlackClient(os.environ.get('PRONTO_BOT_TOKEN'))
@@ -18,6 +18,8 @@ QUESTION_REGEX = r"\[.*\]"
 
 questions = [{"question": "What day is it today?",
               "answer": f"Today is {calendar.day_name[date.today().weekday()]}!"},
+             {"question": "What time is it right now",
+                 "answer": f"{datetime.now().time()}"},
              {"question": "What's the name of this company?", "answer": "ProntoForms!"}]
 
 
