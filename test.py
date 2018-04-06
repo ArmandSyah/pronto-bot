@@ -12,11 +12,13 @@ prontobot_id = None
 
 # constants
 RTM_READ_DELAY = 1  # 1 seconds delay between reading from the RTM
-COMMAND_LIST = ["hello"]
+COMMAND_LIST = ["hello", "question"]
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
+QUESTION_REGEX = r"\[.*\]"
 
 questions = [{"question": "What day is it today?",
-              "answer": f"Today is {calendar.day_name[date.today().weekday()]}!"}]
+              "answer": f"Today is {calendar.day_name[date.today().weekday()]}!"},
+             {"question": "What's the name of this company?", "answer": "ProntoForms!"}]
 
 
 def parse_bot_commands(slack_events):
@@ -36,13 +38,25 @@ def parse_direct_mention(message_text):
     return (matches.group(1), matches.group(2).strip()) if matches else (None, None)
 
 
+def parse_question(message_text):
+    print(message_text, QUESTION_REGEX)
+    matches = re.search(QUESTION_REGEX, message_text)
+    if matches:
+        question_text = matches.group(0).replace("[", "").replace("]", "")
+        answer = [q for q in questions if q['question']
+                  == question_text][0]['answer']
+        return answer
+
+
 def handle_command(command, channel, user_id):
     default_response = "Not sure what you mean. Try *{}*.".format(
-        ','.join(str(x) for x in COMMAND_LIST))
+        ', '.join(str(x) for x in COMMAND_LIST))
 
     response = None
     if command.startswith(COMMAND_LIST[0]):
         response = "Why, hello to you too!"
+    elif command.startswith(COMMAND_LIST[1]):
+        response = parse_question(command)
 
     if not user_id:
         slack_client.api_call(
