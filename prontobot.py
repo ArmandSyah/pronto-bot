@@ -12,9 +12,10 @@ prontobot_id = None
 
 # constants
 RTM_READ_DELAY = 1  # 1 seconds delay between reading from the RTM
-COMMAND_LIST = ["hello", "question"]
+COMMAND_LIST = ["hello", "question", "add"]
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 QUESTION_REGEX = r"\[.*\]"
+ANSWER_REGEX = r"\(.*\)"
 
 questions = [{"question": "What day is it today",
               "answer": f"Today is {calendar.day_name[date.today().weekday()]}!"},
@@ -31,16 +32,25 @@ questions = [{"question": "What day is it today",
              {"question": "Why were you made", "answer": "I was a hack day project"}]
 
 
+def find_answer(question_text):
+    question_obj = [q for q in questions if q['question']
+                    == question_text]
+    answer = None
+    if question_obj:
+        answer = question_obj[0]["answer"]
+    return answer
+
+
 def parse_bot_commands(slack_events):
+    message, channel, messaged_user_id = None, None, None
+    bot_user_id = None
     for event in slack_events:
         pp.pprint(event)
         if event["type"] == "message" and "bot_id" not in event:
             channel = event["channel"]
             messaged_user_id = event["user"]
             bot_user_id, message = parse_direct_mention(event['text'])
-            if bot_user_id == prontobot_id:
-                return message, channel, messaged_user_id
-    return None, None, None
+    return (message, channel, messaged_user_id) if bot_user_id == prontobot_id else (None, None, None)
 
 
 def parse_direct_mention(message_text):
@@ -49,13 +59,38 @@ def parse_direct_mention(message_text):
 
 
 def parse_question(message_text):
-    print(message_text, QUESTION_REGEX)
     matches = re.search(QUESTION_REGEX, message_text)
+    question_text = None
     if matches:
         question_text = matches.group(0).replace("[", "").replace("]", "")
-        answer = [q for q in questions if q['question']
-                  == question_text][0]['answer']
-        return answer
+    return question_text
+
+
+def parse_answer(message_text):
+    matches = re.search(ANSWER_REGEX, message_text)
+    answer_text = None
+    if matches:
+        answer_text = matches.group(0).replace("(", "").replace(")", "")
+    return answer_text
+
+
+def parse_question_answer(message_text):
+    question = parse_question(message_text)
+    answer = parse_answer(message_text)
+    return question, answer
+
+
+def validate_question_answer(question, answer):
+    response = None
+    if question and answer:
+        new_question_object = {"question": question, "answer": answer}
+        questions.append(new_question_object)
+        response = "Question has been added!"
+    elif not question:
+        response = "Question not found. Make sure you enclose your question with square brackets []"
+    elif not answer:
+        response = "Answer not found. Make sure you enclose your answer with brackets ()"
+    return response
 
 
 def handle_command(command, channel, user_id):
@@ -66,7 +101,11 @@ def handle_command(command, channel, user_id):
     if command.startswith(COMMAND_LIST[0]):
         response = "Why, hello to you too!"
     elif command.startswith(COMMAND_LIST[1]):
-        response = parse_question(command)
+        question_text = parse_question(command)
+        response = find_answer(question_text)
+    elif command.startswith(COMMAND_LIST[2]):
+        question, answer = parse_question_answer(command)
+        response = validate_question_answer(question, answer)
 
     if not user_id:
         slack_client.api_call(
