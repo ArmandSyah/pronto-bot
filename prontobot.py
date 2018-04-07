@@ -16,16 +16,24 @@ COMMAND_LIST = ["hello", "question"]
 MENTION_REGEX = "^<@(|[WU].+?)>(.*)"
 QUESTION_REGEX = r"\[.*\]"
 
-questions = [{"question": "What day is it today?",
+questions = [{"question": "What day is it today",
               "answer": f"Today is {calendar.day_name[date.today().weekday()]}!"},
              {"question": "What time is it right now",
-                 "answer": f"{datetime.now().time()}"},
-             {"question": "What's the name of this company?", "answer": "ProntoForms!"}]
+                 "answer": f"{time.strftime('%H:%M', time.localtime())}"},
+             {"question": "What's the name of this company", "answer": "ProntoForms!"},
+             {"question": "Anime Recommendations",
+              "answer": "*Sora Yori mo Tooi Basho* \n *K-On!* \n *Gurren Laggan* \n *Mob Psycho 100* \n *Ping Pong the Animation*"},
+             {"question": "When are the tech talks at ProntoForms",
+                 "answer": "Every thursday!"},
+             {"question": "What is this",
+                 "answer": "I'm a slack bot, designed to answer your questions, among other things if someone programs it"},
+             {"question": "Who made you", "answer": "Armand did"},
+             {"question": "Why were you made", "answer": "I was a hack day project"}]
 
 
 def parse_bot_commands(slack_events):
     for event in slack_events:
-        print(event)
+        pp.pprint(event)
         if event["type"] == "message" and "bot_id" not in event:
             channel = event["channel"]
             messaged_user_id = event["user"]
