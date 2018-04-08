@@ -1,9 +1,6 @@
 import parseutils
 from questions import questions
 
-DEFAULT_RESPONSE = "Not sure what you mean. Try *{}*.".format(
-    ', '.join(str(x) for x in COMMAND_LIST))
-
 
 def find_answer(question_text):
     question_obj = [q for q in questions if q['question']
@@ -42,6 +39,9 @@ COMMAND_LIBRARY = [{"keyword": "hello",
                    {"keyword": "question",
                        "action": question_command, "alias": ["q"]},
                    {"keyword": "add", "action": add_command, "alias": ["a"]}]
+
+DEFAULT_RESPONSE = "Not sure what you mean. Try *{}*.".format(
+    ', '.join(str(x["keyword"]) for x in COMMAND_LIBRARY))
 
 
 def run_command(command_str):
