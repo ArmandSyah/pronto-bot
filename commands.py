@@ -12,7 +12,7 @@ def find_answer(question_text):
     answer = None
     if question_obj:
         answer = question_obj[0]["answer"]
-    return answer
+    return answer if answer else "Question not found. Make sure you enclose your question with square brackets []"
 
 
 def validate_question_answer(question, answer):
@@ -20,7 +20,7 @@ def validate_question_answer(question, answer):
     if question and answer:
         new_question_object = {"question": question, "answer": answer}
         questions.append(new_question_object)
-        response = "Question has been added!"
+        response = "Question and answer has been added!"
     elif not question:
         response = "Question not found. Make sure you enclose your question with square brackets []"
     elif not answer:
@@ -28,7 +28,7 @@ def validate_question_answer(question, answer):
     return response
 
 
-def handle_command(slack_client, command, channel, user_id):
+def run_command(command):
     response = None
     if command.startswith(COMMAND_LIST[0]):
         response = "Why, hello to you too!"
@@ -38,6 +38,11 @@ def handle_command(slack_client, command, channel, user_id):
     elif command.startswith(COMMAND_LIST[2]):
         question, answer = parseutils.parse_question_answer(command)
         response = validate_question_answer(question, answer)
+    return response
+
+
+def handle_command(slack_client, command, channel, user_id):
+    response = run_command(command)
 
     if not user_id:
         slack_client.api_call(

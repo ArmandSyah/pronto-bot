@@ -8,13 +8,12 @@ from commands import handle_command
 
 pp = pprint.PrettyPrinter(indent=4)
 slack_client = SlackClient(os.environ.get('PRONTO_BOT_TOKEN'))
-prontobot_id = None
 
 # constants
 RTM_READ_DELAY = 1  # 1 seconds delay between reading from the RTM
 
 
-def find_bot_commands(slack_events):
+def find_bot_commands(slack_events, prontobot_id):
     message, channel, messaged_user_id = None, None, None
     bot_user_id = None
     for event in slack_events:
@@ -26,15 +25,19 @@ def find_bot_commands(slack_events):
     return (message, channel, messaged_user_id) if bot_user_id == prontobot_id else (None, None, None)
 
 
-if __name__ == "__main__":
+def run_bot():
     if slack_client.rtm_connect(with_team_state=False):
         print("ProntoBot is online!")
         prontobot_id = slack_client.api_call("auth.test")["user_id"]
-        while True:
+        while prontobot_id:
             command, channel, user_id = find_bot_commands(
-                slack_client.rtm_read())
+                slack_client.rtm_read(), prontobot_id)
             if command:
                 handle_command(slack_client, command, channel, user_id)
             time.sleep(RTM_READ_DELAY)
     else:
         print("Connection failed. Exception traceback printed above.")
+
+
+if __name__ == "__main__":
+    run_bot()
