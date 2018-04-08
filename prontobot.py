@@ -22,6 +22,7 @@ def find_bot_commands(slack_events, prontobot_id):
             channel = event["channel"]
             messaged_user_id = event["user"]
             bot_user_id, message = parse_direct_mention(event['text'])
+            print(bot_user_id)
     return (message, channel, messaged_user_id) if bot_user_id == prontobot_id else (None, None, None)
 
 
