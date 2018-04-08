@@ -1,7 +1,6 @@
 import parseutils
 from questions import questions
 
-COMMAND_LIST = ["hello", "question", "add"]
 DEFAULT_RESPONSE = "Not sure what you mean. Try *{}*.".format(
     ', '.join(str(x) for x in COMMAND_LIST))
 
@@ -28,16 +27,30 @@ def validate_question_answer(question, answer):
     return response
 
 
-def run_command(command):
+def question_command(command):
+    question_text = parseutils.parse_question(command)
+    return find_answer(question_text)
+
+
+def add_command(command):
+    question, answer = parseutils.parse_question_answer(command)
+    return validate_question_answer(question, answer)
+
+
+COMMAND_LIBRARY = [{"keyword": "hello",
+                    "action": lambda _: "Why, hello to you too!", "alias": ["h", "hi"]},
+                   {"keyword": "question",
+                       "action": question_command, "alias": ["q"]},
+                   {"keyword": "add", "action": add_command, "alias": ["a"]}]
+
+
+def run_command(command_str):
     response = None
-    if command.startswith(COMMAND_LIST[0]):
-        response = "Why, hello to you too!"
-    elif command.startswith(COMMAND_LIST[1]):
-        question_text = parseutils.parse_question(command)
-        response = find_answer(question_text)
-    elif command.startswith(COMMAND_LIST[2]):
-        question, answer = parseutils.parse_question_answer(command)
-        response = validate_question_answer(question, answer)
+    key = command_str.split()
+    if key:
+        for command in COMMAND_LIBRARY:
+            if key[0] == command["keyword"] or key[0] in command["alias"]:
+                response = command["action"](command_str)
     return response
 
 
