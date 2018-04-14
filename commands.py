@@ -29,7 +29,7 @@ def question_command(command):
     return find_answer(question_text)
 
 
-def add_command(command):
+def add_question_command(command):
     question, answer = parseutils.parse_question_answer(command)
     return validate_question_answer(question, answer)
 
@@ -38,7 +38,10 @@ COMMAND_LIBRARY = [{"keyword": "hello",
                     "action": lambda _: "Why, hello to you too!", "alias": ["h", "hi"]},
                    {"keyword": "question",
                        "action": question_command, "alias": ["q"]},
-                   {"keyword": "add", "action": add_command, "alias": ["a"]}]
+                   {"keyword": "add_question",
+                       "action": add_question_command, "alias": ["a", "add"]},
+                   {"keyword": "list_questions",
+                    "action": lambda _: '\n'.join([question['question'] for question in questions]), "alias": ["list"]}]
 
 DEFAULT_RESPONSE = "Not sure what you mean. Try *{}*.".format(
     ', '.join(str(x["keyword"]) for x in COMMAND_LIBRARY))
