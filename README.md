@@ -21,8 +21,8 @@ To make this work follow these steps:
 - Finally, run the bot (**python prontobot.py**)
 
 ## List of Avaiable commands
-- **hello** (aliases: h, hi): Pronto says hi back! *Usage: @<botname> hello*
-- **question** (aliases: q): Ask Pronto a question *Usage: @<botname> question [What day is it today]*
+- **hello** (aliases: h, hi): Pronto says hi back! *Usage: @{botname} hello*
+- **question** (aliases: q): Ask Pronto a question *Usage: @{botname} question [What day is it today]*
 - **add_question** (aliases: add, a): If Pronto doesn't know the answer to the question, just tell him the answer to one and he'll remember 
- *@<botname> add_question [When's my birthday] (January 17th)*
-- **list_questions** (aliases: list): Pronto will tell you every question you can ask it at the time *Usage @<botname> list_questions*
+ *@{botname} add_question [When's my birthday] (January 17th)*
+- **list_questions** (aliases: list): Pronto will tell you every question you can ask it at the time *Usage @{botname} list_questions*
